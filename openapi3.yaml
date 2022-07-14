@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  description: Documentação de Integração da Plataforma Pontue
+  version: 1.0.0
+  title: Pontue Integration Docs
+  contact:
+    email: fernandocandiani@pontue.com.br
+    name: Fernando Candiani
+servers:
+  - url: https://api.pontue.com.br
+  - url: http://localhost:8080
+components:
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ResponseError:
+      properties:
+        message:
+          type: string
+          description: Descrição do erro.
+tags:
+- name: OAuth
+  description: Operações de autenticação via OAuth
+paths:
+  /oauth/token:
+    post:
+      tags:
+        - OAuth
+      summary: Obtém um token de acesso
+      description: Obtém um token de acesso para fazer o login de um usuário.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  description: O tipo de concessão da solicitação de token ('client_credentials').
+                  default: client_credentials
+                client_id:
+                  type: string
+                  description: ID fornecido pela nossa equipe de TI.
+                client_secret:
+                  type: string
+                  description: Token fornecido pela nossa equipe de TI.
+              required:
+                - grant_type
+                - client_id
+                - client_secret
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  token_type:
+                    type: string
+                    description: Tipo do token.
+                  expires_in:
+                    type: integer
+                    description: Tempo de duração do token (em segundos).
+                  access_token:
+                    type: string
+                    description: Token de acesso.
+        401:
+          description: Erro de autenticação
+          content:
+            application/json:
+              schema:
+                properties:
+                  error:
+                    type: string
+                    description: Tipo do erro.
+                  error_description:
+                    type: string
+                    description: Descrição do erro.
+                  message:
+                    type: string
+                    description: Mensagem do erro.
+  /integrations/auth:
+    post:
+      tags:
+        - OAuth
+      summary: Login na Plataforma Pontue
+      description: "
+        Obtém dados de acesso do usuário.
+        No Header Authorization, utilizar o 'token_type' + 'access_token' retornado pelo endpoint /oauth/token. Exemplo: 'Authorization: Bearer eyJ0eXAiOiJ...'.
+        Porém, aqui na documentação, adicione apenas o 'access_token', pois o 'token_type' é adicionado automaticamente.
+      "
+      security:
+        - Authorization:
+          - read
+          - write
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email do usuário cadastrado na Plataforma Pontue.
+              required:
+                - email
+      responses:
+        200:
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: ID do usuário.
+                          name:
+                            type: string
+                            description: Nome do usuário.
+                          email:
+                            type: string
+                            description: Email do usuário.
+                      role:
+                        type: string
+                        description: Nível de acesso do usuário.
+                      student:
+                        type: object
+                        description: Caso o usuário seja um aluno
+                        properties:
+                          id:
+                            type: string
+                            description: ID do aluno.
+                      school:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: ID da escola.
+                          name:
+                            type: string
+                            description: Nome da escola.
+                          isSaas:
+                            type: integer
+                            description: Tipo de modelo de negócio da escola.
+                          isOnTrial:
+                            type: boolean
+                            description: Indica se a escola está em modo de teste.
+                      schoolClass:
+                        type: object
+                        description: Caso o usuário seja um aluno
+                        properties:
+                          id:
+                            type: string
+                            description: ID da turma.
+                      modules:
+                        type: array
+                        description: Módulos ativos da escola.
+                        items:
+                          type: string
+                      access_token:
+                        type: string
+                        description: Token de acesso.
+                      token_type:
+                        type: string
+                        description: Tipo do token.
+                      expires_at:
+                        type: string
+                        description: Data de expiração do token (Y-m-d H:i:s).
+                  meta:
+                    type: object
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
