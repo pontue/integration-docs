@@ -8,7 +8,6 @@ info:
     name: Fernando Candiani
 servers:
   - url: https://api.pontue.com.br
-  - url: http://localhost:8080
 components:
   securitySchemes:
     Authorization:
