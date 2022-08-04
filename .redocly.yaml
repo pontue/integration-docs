@@ -7,6 +7,7 @@ lint:
     - recommended
   rules:
     no-unused-components: error
+    no-ambiguous-paths: off
 features.openapi:
   showConsole: true
   htmlTemplate: ./docs/index.html
@@ -14,4 +15,3 @@ features.openapi:
     colors:
       primary:
         main: '#32329f'
-
