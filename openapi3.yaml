@@ -7,7 +7,13 @@ info:
     email: fernandocandiani@pontue.com.br
     name: Fernando Candiani
 servers:
-  - url: https://api.pontue.com.br
+  - url: https://{server}.pontue.com.br
+    variables:
+      server:
+        default: api.dev
+        enum:
+          - api
+          - api.dev
 components:
   securitySchemes:
     Authorization:
