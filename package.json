@@ -1,0 +1,14 @@
+{
+  "name": "acme-api",
+  "version": "1.0.0",
+  "dependencies": {
+    "@redocly/cli": "1.0.0-beta.105",
+    "redoc-cli": "^0.13.17"
+  },
+  "private": true,
+  "scripts": {
+    "start": "redocly preview-docs --port 8082",
+    "build": "redoc-cli build openapi/openapi.yaml -o index.html",
+    "test": "redocly lint"
+  }
+}
