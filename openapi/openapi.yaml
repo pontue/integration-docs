@@ -673,7 +673,7 @@ paths:
                   type: string
                   format: uuid
                   description: ID do aluno.
-                file:
+                files:
                   type: array
                   description:
                     Arquivos com as imagens da redação (redação por foto).<br>
@@ -686,8 +686,8 @@ paths:
                   type: string
                   description:
                     Texto digitado pelo aluno (redação digitada).<br>
-                    <strong>Obrigatório se não enviado `file`.</strong><br>
-                    <strong>Se enviado junto com `file`, dará preferência para `file`!</strong>
+                    <strong>Obrigatório se não enviado `files`.</strong><br>
+                    <strong>Se enviado junto com `files`, dará preferência para `files`!</strong>
                 type:
                   type: object
                   description: "
