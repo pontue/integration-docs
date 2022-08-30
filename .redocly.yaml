@@ -1,6 +1,7 @@
 # See https://redocly.com/docs/cli/configuration/ for more information.
+organization: Pontue
 apis:
-  sample@v1:
+  main@v2:
     root: openapi/openapi.yaml
 lint:
   extends:
@@ -9,9 +10,11 @@ lint:
     no-unused-components: error
     no-ambiguous-paths: off
 features.openapi:
+  hideTryItPanel: false
+  hideDownloadButton: true
   showConsole: true
   htmlTemplate: ./docs/index.html
   theme:
     colors:
       primary:
-        main: '#32329f'
+        main: '#592a96'
