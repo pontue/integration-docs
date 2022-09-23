@@ -643,6 +643,78 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseError'
+  /integrations/proposal/{proposalId}/makeAvailable:
+    post:
+      operationId: proposalMakeAvailable
+      tags:
+        - Proposal
+      summary: Liberar propostas
+      description:
+        Liberar propostas para turmas ou disciplina.<br>
+        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
+        <strong>OBS:</strong> se enviado disciplina e as turmas, dará preferência pra disciplina.
+      security:
+        - Authorization:
+            - read
+      parameters:
+        - in: path
+          name: proposalId
+          schema:
+            type: string
+            format: uuid
+          description: ID da proposta
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subjectId:
+                  type: string
+                  format: uuid
+                  description: ID da disciplina
+                schoolClasses:
+                  type: array
+                  description: Array de objetos com os ID's das turmas
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                releaseAt:
+                  type: string
+                  description: "
+                    Data que a proposta deve ser <strong>liberada</strong>.<br>
+                    <strong>Formato:</strong> DD/MM/YYYY HH:mm:ss (Ex.: 23/09/2022 08:00:00)
+                  "
+                removeAt:
+                  type: string
+                  description: "
+                    Data que a proposta deve ser <strong>removida</strong>.<br>
+                    <strong>Formato:</strong> DD/MM/YYYY HH:mm:ss (Ex.: 23/09/2022 08:00:00)
+                  "
+      responses:
+        204:
+          description: Not Content.
+        400:
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        401:
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        404:
+          description: Not Found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
   /integrations/essay/create:
     post:
       operationId: createEssay
