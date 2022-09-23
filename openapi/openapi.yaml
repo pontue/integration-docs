@@ -651,7 +651,7 @@ paths:
       summary: Liberar propostas
       description:
         Liberar propostas para turmas ou disciplina.<br>
-        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
+        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.<br>
         <strong>OBS:</strong> se enviado disciplina e as turmas, dará preferência pra disciplina.
       security:
         - Authorization:
