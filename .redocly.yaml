@@ -1,20 +1,33 @@
 # See https://redocly.com/docs/cli/configuration/ for more information.
 organization: Pontue
 apis:
-  main@v2:
-    root: openapi/openapi.yaml
-lint:
+  core@v2:
+    root: ./openapi/openapi.yaml
+styleguide:
   extends:
     - recommended
   rules:
     no-unused-components: error
     no-ambiguous-paths: off
 features.openapi:
+  pagination: section
   hideTryItPanel: false
   hideDownloadButton: true
   showConsole: true
   htmlTemplate: ./docs/index.html
   theme:
+    layout:
+      showDarkRightPanel: true
     colors:
       primary:
-        main: '#592a96'
+        main: '#FFFFFF'
+    sidebar:
+      backgroundColor: '#592A96'
+      textColor: '#FFFFFF'
+      activeBgColor: '#694596'
+      activeTextColor: '#FFFFFF'
+    rightPanel:
+      backgroundColor: '#592A96'
+      panelBackgroundColor: '#694596'
+      panelControlsBackgroundColor: '#3a2c47'
+      textColor: '#FFFFFF'
