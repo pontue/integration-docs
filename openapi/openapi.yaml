@@ -1169,3 +1169,85 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseError'
+  /integrations/essay/{essayId}/getImages:
+    get:
+      operationId: getImagesEssay
+      tags:
+        - Essay
+      summary: Obtém as imagens de uma redação corrigida
+      description:
+        Obtém as imagens de uma redação <strong>corrigida e não reportada</strong>.<br>
+        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
+      security:
+        - Authorization:
+            - read
+      parameters:
+        - in: path
+          name: essayId
+          schema:
+            type: string
+            format: uuid
+          description: ID da redação
+      responses:
+        200:
+          description: Ok.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      image:
+                        type: string
+                        format: uuid
+                        description: ID da redação.
+                      essayImages:
+                        type: array
+                        description: Imagens da redação.
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: base64
+                              description: Imagem corrigida em base64.
+                            comments:
+                              type: string
+                              description: Comentários da correção (no format JSON). Nullable
+                              format: json
+                            order:
+                              type: integer
+                              description: Ordem da imagem.
+                  meta:
+                    type: object
+        400:
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    description: "`This essay is uncorrected.` ou `This essay has been reported.`"
+        401:
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        404:
+          description: Not Found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        500:
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    description: Internal server error.
