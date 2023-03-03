@@ -1,7 +1,7 @@
 # See https://redocly.com/docs/cli/configuration/ for more information.
 organization: Pontue
 apis:
-  core@v2:
+  main@v2:
     root: ./openapi/openapi.yaml
 styleguide:
   extends:
