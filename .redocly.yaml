@@ -31,3 +31,7 @@ features.openapi:
       panelBackgroundColor: '#694596'
       panelControlsBackgroundColor: '#3a2c47'
       textColor: '#FFFFFF'
+    typography:
+      links:
+        color: '#0000FF'
+        visited: '#800080'
