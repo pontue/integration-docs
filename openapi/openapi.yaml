@@ -1426,7 +1426,8 @@ paths:
                           description: URL do vídeo da correção em formato `mp4`.
                     grades:
                       type: array
-                      description: Notas da correção.
+                      description: Notas da correção. Se a redação for denunciada, esse campo será `null`.
+                      x-nullable: true
                       items:
                         type: object
                         properties:
@@ -1440,9 +1441,21 @@ paths:
                             type: string
                             description: Descrição dos erros.
                             x-nullable: true
+                    report:
+                      type: object
+                      description: Denúncia da redação. Se a redação não for denunciada, esse campo será `null`.
+                      x-nullable: true
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: ID da denúncia.
+                        name:
+                          type: string
+                          description: Nome da denúncia.
                 essayImages:
                   type: array
-                  description: Imagens da redação com a correção.
+                  description: Imagens da redação com a correção. Se a redação for denunciada, esse campo será `null`.
                   items:
                     type: object
                     properties:
