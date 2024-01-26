@@ -1,11 +1,14 @@
 openapi: 3.1.0
 info:
   description: Documentação de Integração da Plataforma Pontue
-  version: 2.0.0
+  version: 2.1.0
   title: Pontue Integration Docs
   contact:
     email: fernandocandiani@pontue.com.br
     name: Fernando Candiani
+  license:
+    name: Proprietary
+    url: https://pontue.com.br
 servers:
  - url: https://api.dev.pontue.com.br
 components:
@@ -27,6 +30,8 @@ tags:
     description: Operações de propostas
   - name: Essay
     description: Operações de redações
+  - name: Webhook
+    description: Operações de webhooks para envio das redações corrigidas
 paths:
   /oauth/token:
     post:
@@ -804,6 +809,27 @@ paths:
                                 order:
                                   type: integer
                                   description: Ordem da folha.
+                          children:
+                            type: array
+                            description: Se o plano da escola estiver configurado para ter mais de 1 correção por redação, esse campo será retornado com todas as redações vinculadas.
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  description: ID da redação criada.
+                                urls:
+                                  type: array
+                                  description: URLs das folhas da redação.
+                                  items:
+                                    type: object
+                                    properties:
+                                      url:
+                                        type: string
+                                        description: URL da folha.
+                                      order:
+                                        type: integer
+                                        description: Ordem da folha.
                   meta:
                     type: object
         400:
@@ -934,12 +960,107 @@ paths:
                               description: URL da imagem.
                             annotations:
                               type: string
-                              description: Anotações da correção (no format JSON). Nullable
+                              description: Anotações da correção (no format JSON).
+                              x-nullable: true
                               format: json
                             comments:
                               type: string
-                              description: Comentários da correção (no format JSON). Nullable
+                              description: Comentários da correção (no format JSON).
+                              x-nullable: true
                               format: json
+                      children:
+                        type: array
+                        description: Se o plano da escola estiver configurado para ter mais de 1 correção por redação, esse campo será retornado com todas as redações vinculadas.
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              description: ID da redação.
+                            number:
+                              type: integer
+                              description: Número da redação.
+                            student:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  description: ID do aluno.
+                                name:
+                                  type: string
+                                  description: Nome do aluno.
+                                schoolClass:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                      description: ID da turma.
+                                    name:
+                                      type: string
+                                      description: Nome da turma.
+                                    school:
+                                      type: object
+                                      properties:
+                                        id:
+                                          type: string
+                                          format: uuid
+                                          description: ID da escola.
+                                        name:
+                                          type: string
+                                          description: Nome da escola.
+                            proposal:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  description: ID da proposta.
+                                name:
+                                  type: string
+                                  description: Nome da proposta.
+                                number:
+                                  type: integer
+                                  description: Número da proposta.
+                                grid:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                      description: ID da grade.
+                                    name:
+                                      type: string
+                                      description: Nome da grade.
+                            essayImages:
+                              type: array
+                              description: Imagens da redação.
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                    description: ID da imagem.
+                                  order:
+                                    type: integer
+                                    description: Ordem da imagem.
+                                  url:
+                                    type: string
+                                    format: url
+                                    description: URL da imagem.
+                                  annotations:
+                                    type: string
+                                    description: Anotações da correção (no format JSON).
+                                    x-nullable: true
+                                    format: json
+                                  comments:
+                                    type: string
+                                    description: Comentários da correção (no format JSON).
+                                    x-nullable: true
+                                    format: json
                   meta:
                     type: object
         401:
@@ -1214,7 +1335,8 @@ paths:
                               description: Imagem corrigida em base64.
                             comments:
                               type: string
-                              description: Comentários da correção (no format JSON). Nullable
+                              description: Comentários da correção (no format JSON).
+                              x-nullable: true
                               format: json
                             order:
                               type: integer
@@ -1251,3 +1373,106 @@ paths:
                   message:
                     type: string
                     description: Internal server error.
+  /webhook:
+    post:
+      operationId: sendWebhook
+      tags:
+        - Webhook
+      summary: URL para enviar os webhooks de redação corrigida
+      description:
+        <strong>Endpoint para receber os webhooks da Plataforma Pontue.</strong><br>
+        <strong>Esse endpoint não é cadastrado no nosso sistema, é o `POST` que iremos fazer para a URL que vocês nos passarem.</strong>
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                essay:
+                  type: object
+                  description: Redação
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      description: ID da redação.
+                    parentId:
+                      type: string
+                      format: uuid
+                      description: ID da redação pai. Se a redação for a redação pai, esse campo será `null`.
+                      x-nullable: true
+                correction:
+                  type: object
+                  description: Correção
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      description: ID da correção.
+                    videoUrl:
+                      type: string
+                      description: URL do vídeo da correção, caso tenha. Se não tiver, esse campo será `null`.
+                      x-nullable: true
+                    video:
+                      type: object
+                      description: URL do vídeo da correção em diferentes formatos, caso tenha. Se não tiver, esse campo será `null`.
+                      x-nullable: true
+                      properties:
+                        webm:
+                          type: string
+                          description: URL do vídeo da correção em formato `webm`.
+                        mp4:
+                          type: string
+                          description: URL do vídeo da correção em formato `mp4`.
+                    grades:
+                      type: array
+                      description: Notas da correção. Se a redação for denunciada, esse campo será `null`.
+                      x-nullable: true
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            description: Nome do critério.
+                          grade:
+                            type: number
+                            description: Nota.
+                          error:
+                            type: string
+                            description: Descrição dos erros.
+                            x-nullable: true
+                    report:
+                      type: object
+                      description: Denúncia da redação. Se a redação não for denunciada, esse campo será `null`.
+                      x-nullable: true
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: ID da denúncia.
+                        name:
+                          type: string
+                          description: Nome da denúncia.
+                essayImages:
+                  type: array
+                  description: Imagens da redação com a correção. Se a redação for denunciada, esse campo será `null`.
+                  items:
+                    type: object
+                    properties:
+                      image:
+                        type: string
+                        description: Imagem corrigida em base64.
+                      order:
+                        type: integer
+                        description: Ordem da imagem.
+                student:
+                  type: object
+                  description: Aluno
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      description: ID do aluno.
+                    name:
+                      type: string
+                      description: Nome do aluno.

@@ -1,15 +1,15 @@
 {
   "name": "pontue-integration-docs",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "dependencies": {
-    "@redocly/cli": "^1.0.0-beta.108",
-    "redoc": "^2.0.0",
-    "redoc-cli": "^0.13.20"
+    "@redocly/cli": "^1.7.0",
+    "redoc": "^2.1.3",
+    "redoc-cli": "^0.13.21"
   },
   "private": true,
   "scripts": {
-    "start": "redocly preview-docs --port 8082",
-    "build": "redoc-cli build openapi/openapi.yaml -o index.html -t docs/index.html --config .redocly.yaml",
+    "start": "redocly preview-docs openapi/openapi.yaml --port 8082 --config .redocly.yaml",
+    "build": "redocly build-docs openapi/openapi.yaml -o index.html -t docs/index.html --config .redocly.yaml",
     "test": "redocly lint"
   }
 }
