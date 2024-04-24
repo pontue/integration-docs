@@ -1401,6 +1401,9 @@ paths:
                       format: uuid
                       description: ID da redação pai. Se a redação for a redação pai, esse campo será `null`.
                       x-nullable: true
+                    thereWasDiscrepancy:
+                      type: boolean
+                      description: Se houve discrepância nas correções das redações vinculadas a essa, a redação será corrigida novamente por outro corretor.
                 correction:
                   type: object
                   description: Correção
