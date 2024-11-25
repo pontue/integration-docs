@@ -1070,7 +1070,7 @@ paths:
                             type: string
                             format: uuid
                             description: ID da justificativa para zerar redação.
-                          name:
+                          reason:
                             type: string
                             description: Nome da justificativa para zerar redação.
                   meta:
@@ -1477,7 +1477,7 @@ paths:
                           type: string
                           format: uuid
                           description: ID da justificativa para zerar redação.
-                        name:
+                        reason:
                           type: string
                           description: Nome da justificativa para zerar redação.
                 essayImages:
