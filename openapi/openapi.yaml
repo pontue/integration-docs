@@ -1061,6 +1061,18 @@ paths:
                                     description: Comentários da correção (no format JSON).
                                     x-nullable: true
                                     format: json
+                      zeroReason:
+                        type: object
+                        description: Zerar redação. Se a redação não for zerada, esse campo será `null`.
+                        x-nullable: true
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            description: ID da justificativa para zerar redação.
+                          reason:
+                            type: string
+                            description: Nome da justificativa para zerar redação.
                   meta:
                     type: object
         401:
@@ -1456,6 +1468,18 @@ paths:
                         name:
                           type: string
                           description: Nome da denúncia.
+                    zeroReason:
+                      type: object
+                      description: Zerar redação. Se a redação não for zerada, esse campo será `null`.
+                      x-nullable: true
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: ID da justificativa para zerar redação.
+                        reason:
+                          type: string
+                          description: Nome da justificativa para zerar redação.
                 essayImages:
                   type: array
                   description: Imagens da redação com a correção. Se a redação for denunciada, esse campo será `null`.
