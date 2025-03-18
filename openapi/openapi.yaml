@@ -1511,12 +1511,12 @@ paths:
                         default: 21
                       createdAt:
                         type: string
-                        format: date-time
                         description: Data de criação.
+                        default: 2025-02-07T13:19:06.000-03:00
                       updatedAt:
                         type: string
-                        format: date-time
                         description: Data do último update.
+                        default: 2025-02-07T13:19:06.000-03:00
                   meta:
                     type: object
         404:
@@ -1575,12 +1575,12 @@ paths:
                         description: ID de referência da turma.
                       createdAt:
                         type: string
-                        format: date-time
                         description: Data de criação.
+                        default: 2025-02-07T13:19:06.000-03:00
                       updatedAt:
                         type: string
-                        format: date-time
                         description: Data do último update.
+                        default: 2025-02-07T13:19:06.000-03:00
         400:
           description: Bad Request. Link inválido ou nome da turma não foi enviado.
           content:
@@ -1599,6 +1599,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseError'
+    delete:
+      operationId: deleteSchoolClass
+      tags:
+        - School Class
+      summary: Delete de turma
+      description:
+        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
+      security:
+        - Authorization:
+            - read
+      parameters:
+        - in: path
+          name: schoolClassId
+          schema:
+            type: string
+            format: uuid
+          description: ID da turma
+      responses:
+        200:
+          description: Ok.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        description: ID da turma.
+                      name:
+                        type: string
+                        description: Nome da turma.
+                      idRef:
+                        type: string
+                        description: ID de referência da turma.
+                      createdAt:
+                        type: string
+                        description: Data de criação.
+                        default: 2025-02-07T13:19:06.000-03:00
+                      updatedAt:
+                        type: string
+                        description: Data do último update.
+                        default: 2025-02-07T13:19:06.000-03:00
+                      deletedAt:
+                        type: string
+                        description: Data do último update.
+                        default: 2025-02-07T13:19:06.000-03:00
+        404:
+          description: Not Found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError' 
   /webhook:
     post:
       operationId: sendWebhook
