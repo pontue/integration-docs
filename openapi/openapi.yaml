@@ -43,7 +43,19 @@ paths:
       tags:
         - OAuth
       summary: Obtém um token de acesso
-      description: Obtém um token de acesso para fazer o login de um usuário.
+      description: "
+        Obtém um token de acesso para fazer o login de um usuário.
+        <br/>
+        <br/>
+        <strong>IMPORTANTE</strong>:
+        <br/>
+        Caso for fazer o <strong>Login SSO</strong>, insira a seguinte informação no campo `scope`: `login-sso`.
+        <br/>
+        Se não for fazer o <strong>Login SSO</strong>, não envie o campo `scope`.
+        <br/>
+        <br/>
+        Para o <strong>Login SSO</strong>, redirecionar o usuário para a URL: `https://sso.dev.pontue.com.br` com os seguintes parâmetros na `query string`: `ssoAccessToken` (`access_token` recebido nesse endpoint) e uma das três opções `id` (ID do usuário na nossa plataforma) ou `idRef` (ID de referência do usuário) ou `email` (e-mail do usuário).
+      "
       requestBody:
         content:
           multipart/form-data:
@@ -60,6 +72,13 @@ paths:
                 client_secret:
                   type: string
                   description: Token fornecido pela nossa equipe de TI.
+                scope:
+                  type: string
+                  description: "
+                    Escopo da solicitação de token. Todos os escopos disponíveis são separados por espaço.
+                    <br />
+                    Caso for fazer o <strong>Login SSO</strong>, insira `login-sso`, caso contrário, não envie esse campo.
+                  "
               required:
                 - grant_type
                 - client_id
@@ -100,9 +119,13 @@ paths:
       operationId: authenticate
       tags:
         - OAuth
-      summary: Login na Plataforma Pontue
+      summary: Obter token de acesso de usuário
       description: "
-        Obtém dados de acesso do usuário.<br>
+        Obtém dados de acesso do usuário.
+        <br/>
+        <br/>
+        <strong>IMPORTANTE</strong>:
+        <br/>
         No Header Authorization, utilizar o `token_type` + `access_token` retornado pelo endpoint `/oauth/token`. <br>
         <strong>Exemplo</strong>: `Authorization: Bearer eyJ0eXAiOiJ...`.<br>
         <strong>Porém, aqui na documentação, adicione apenas o `access_token`, pois o `token_type` é adicionado automaticamente</strong>.
@@ -1389,12 +1412,12 @@ paths:
                   message:
                     type: string
                     description: Internal server error.
-  /integrations/schoolClasses/create:
+  /integrations/schoolClasses:
     post:
       operationId: createSchoolClass
       tags:
         - School Class
-      summary: Criação de turma
+      summary: Criação de turmas
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
@@ -1402,28 +1425,27 @@ paths:
             - read
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
                 schoolClasses:
-                  type: object
-                  description: Array de objetos com os nomes e ID's das turmas
+                  type: array
+                  description: Array de objetos com os nomes e ID's de referência das turmas
                   items:
                     type: object
                     properties:
-                      id:
+                      name:
                         type: string
-                        format: uuid
-                name:
-                  type: string
-                  description: Nome da turma.
-                idRef:
-                  type: string
-                  description: ID da turma
+                        description: Nome da turma.
+                      idRef:
+                        type: string
+                        description: ID de referência da turma
+                        x-nullable: true
+                    required:
+                      - name
               required:
-                - name
-                - idRef
+                - schoolClasses
       responses:
         201:
           description: Created.
@@ -1435,20 +1457,19 @@ paths:
                     type: object
                     properties:
                       schoolClasses:
-                        type: object
-                        properties:
-                          schoolClass:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                description: ID da turma criada.
-                              nome:
-                                type: string
-                                description: Nome da turma.
-                              idRef:
-                                type: string
-                                description: ID de referência da turma.
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: ID da turma criada.
+                            nome:
+                              type: string
+                              description: Nome da turma.
+                            idRef:
+                              type: string
+                              description: ID de referência da turma.
                   meta:
                     type: object
         400:
@@ -1460,15 +1481,100 @@ paths:
                   message:
                     type: string
                     default: School Classes already exists.
-        404:
-          description: Not Found.
+    get:
+      operationId: listSchoolClasses
+      tags:
+        - School Class
+      summary: Listagem de turmas
+      description:
+        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
+      security:
+        - Authorization:
+            - read
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                search:
+                  type: string
+                  description: Filtrar pelo nome da turma.
+                  default: null
+                page:
+                  type: integer
+                  description: Quantidades de páginas.
+                  default: 1
+                perPage:
+                  type: integer
+                  description: Quantidades de turmas por página.
+                  default: 15
+                sort:
+                  type: string
+                  description: Organizar lista por `id`, `name`, `idRef`, `students`, `createdAt` ou `updatedAt`.
+                  default: name
+                order:
+                  type: string
+                  description: Ordenar por `asc` ou `desc`.
+                  default: asc
+      responses:
+        200:
+          description: OK.
           content:
             application/json:
               schema:
+                type: object
                 properties:
-                  message:
-                    type: string
-                    default: Unauthorized.
+                  data:
+                    type: object
+                    properties:
+                      schoolClasses:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: ID da turma.
+                            name:
+                              type: string
+                              description: Nome da turma.
+                            idRef:
+                              type: string
+                              nullable: true
+                              description: ID de referência da turma.
+                            students:
+                              type: integer
+                              x-nullable: true
+                              description: Quantidade de estudantes na turma.
+                            createdAt:
+                              type: string
+                              format: date-time
+                              description: Data de criação da turma.
+                            updatedAt:
+                              type: string
+                              format: date-time
+                              description: Data da última atualização da turma.
+                            deletedAt:
+                              type: string
+                              format: date-time
+                              x-nullable: true
+                              description: Data de exclusão da turma (nulo se não foi excluída).
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        description: Número total de turmas.
+                        default: 1
+                      perPage:
+                        type: integer
+                        description: Número de turmas por página atual.
+                        default: 1
+                      currentPage:
+                        type: integer
+                        description: Página atual.
+                        default: 1
   /integrations/schoolClasses/{schoolClassId}:
     get:
       operationId: showSchoolClass
@@ -1507,18 +1613,20 @@ paths:
                       idRef:
                         type: string
                         description: ID de referência da turma.
+                        x-nullable: true
                       students:
                         type: number
                         description: Quantidade de alunas da turma.
-                        default: 21
                       createdAt:
                         type: string
                         description: Data de criação.
-                        default: 2025-02-07T13:19:06.000-03:00
                       updatedAt:
                         type: string
                         description: Data do último update.
-                        default: 2025-02-07T13:19:06.000-03:00
+                      deletedAt:
+                        type: string
+                        description: Data de exclusão (nulo se não foi excluída).
+                        x-nullable: true
                   meta:
                     type: object
         404:
@@ -1528,7 +1636,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResponseError'
     post:
-      operationId: updateShoolClass
+      operationId: updateSchoolClass
       tags:
         - School Class
       summary: Update de turma
@@ -1546,7 +1654,7 @@ paths:
           description: ID da turma
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
@@ -1575,14 +1683,13 @@ paths:
                       idRef:
                         type: string
                         description: ID de referência da turma.
+                        x-nullable: true
                       createdAt:
                         type: string
                         description: Data de criação.
-                        default: 2025-02-07T13:19:06.000-03:00
                       updatedAt:
                         type: string
                         description: Data do último update.
-                        default: 2025-02-07T13:19:06.000-03:00
                   meta:
                     type: object
         400:
@@ -1640,131 +1747,29 @@ paths:
                       idRef:
                         type: string
                         description: ID de referência da turma.
+                        x-nullable: true
                       createdAt:
                         type: string
                         description: Data de criação.
-                        default: 2025-02-07T13:19:06.000-03:00
                       updatedAt:
                         type: string
                         description: Data do último update.
-                        default: 2025-02-07T13:19:06.000-03:00
                       deletedAt:
                         type: string
-                        description: Data do último update.
-                        default: 2025-02-07T13:19:06.000-03:00
+                        description: Data de exclusão (nulo se não foi excluída).
+                        x-nullable: true
         404:
           description: Not Found.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseError'
-  /integrations/schoolClasses:
-    get:
-      operationId: listSchoolClasses
-      tags:
-        - School Class
-      summary: Listagem de turma
-      description:
-        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
-      security:
-        - Authorization:
-            - read
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                search:
-                  type: string
-                  description: Filtrar pelo nome da turma.
-                  default: null
-                onlyTrashed:
-                  type: boolean
-                  description: Filtrar por turmas deletadas.
-                  default: false
-                page:
-                  type: integer
-                  description: Quantidades de páginas.
-                  default: 1
-                perPage:
-                  type: integer
-                  description: Quantidades de turmas por página.
-                  default: 12
-                sort:
-                  type: string
-                  description: Organizar lista por ID, name, idRef, students, createdAt ou updatedAt.
-                  default: name
-                order:
-                  type: string
-                  description: Ordernar por asc ou desc.
-                  default: asc
-      responses:
-        200:
-          description: OK.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      schoolClasses:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              description: ID da turma.
-                            name:
-                              type: string
-                              description: Nome da turma.
-                            idRef:
-                              type: string
-                              nullable: true
-                              description: ID de referência da turma.
-                            students:
-                              type: integer
-                              description: Quantidade de estudantes na turma.
-                            createdAt:
-                              type: string
-                              format: date-time
-                              description: Data de criação da turma.
-                              default: 2025-02-07T13:19:06.000-03:00
-                            updatedAt:
-                              type: string
-                              format: date-time
-                              description: Data da última atualização da turma.
-                              default: 2025-02-07T13:19:06.000-03:00
-                            deletedAt:
-                              type: string
-                              format: date-time
-                              nullable: true
-                              description: Data de exclusão da turma (nulo se não foi excluída).
-                              default: null
-                  meta:
-                    type: object
-                    properties:
-                      total:
-                        type: integer
-                        description: Número total de turmas.
-                        default: 1
-                      perPage:
-                        type: integer
-                        description: Número de turmas por página.
-                        default: 1
-                      currentPage:
-                        type: integer
-                        description: Página atual.
-                        default: 1
-  /integrations/students/create:
+  /integrations/students:
     post:
       operationId: createStudent
       tags:
         - Student
-      summary: Criação de aluno
+      summary: Criação de alunos
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
@@ -1772,40 +1777,37 @@ paths:
             - read
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
                 schoolClassId:
                     type: string
                     format: uuid
-                    description: ID da turma
+                    description: ID da turma que todos os alunos serão vinculados.
                 students:
-                  type: object
-                  description: Array de objetos com os nomes, sobrenomes, emails e ID's dos alunos
+                  type: array
+                  description: Array de objetos com os nomes, sobrenomes, emails e ID's de referência dos alunos
                   items:
                     type: object
                     properties:
-                      id:
+                      name:
                         type: string
-                        format: uuid
-                name:
-                  type: string
-                  description: Nome do aluno.
-                surname:
-                  type: string
-                  description: Sobrenome do aluno.
-                email:
-                  type: string
-                  description: Email do aluno.
-                idRef:
-                  type: string
-                  description: ID do aluno
-              required:
-                - name
-                - surname
-                - email
-                - idRef
+                        description: Nome do aluno.
+                      surname:
+                        type: string
+                        description: Sobrenome do aluno.
+                      email:
+                        type: string
+                        description: Email do aluno.
+                      idRef:
+                        type: string
+                        description: ID de referência do aluno
+                        x-nullable: true
+                    required:
+                      - name
+                      - surname
+                      - email
       responses:
         201:
           description: Created.
@@ -1844,26 +1846,24 @@ paths:
                                   description: E-mail do usuário.
                                 profilePicture:
                                   type: string
-                                  nullable: true
+                                  x-nullable: true
                                   description: URL da foto de perfil do usuário.
                                 idRef:
                                   type: string
                                   description: ID de referência do usuário.
+                                  x-nullable: true
                                 createdAt:
                                   type: string
                                   format: date-time
                                   description: Data de criação do usuário.
-                                  default: 2025-02-07T13:19:06.000-03:00
                                 updatedAt:
                                   type: string
                                   format: date-time
                                   description: Data da última atualização do usuário.
-                                  default: 2025-02-07T13:19:06.000-03:00
                                 deletedAt:
                                   type: string
-                                  nullable: true
                                   description: Data de exclusão do usuário (se aplicável).
-                                  default: null
+                                  x-nullable: true
                             schoolClass:
                               type: object
                               properties:
@@ -1875,27 +1875,24 @@ paths:
                                   description: Nome da turma.
                                 idRef:
                                   type: string
-                                  nullable: true
                                   description: ID de referência da turma.
+                                  x-nullable: true
                             createdAt:
                               type: string
                               format: date-time
                               description: Data de criação do usuário.
-                              default: 2025-02-07T13:19:06.000-03:00
                             updatedAt:
                               type: string
                               format: date-time
                               description: Data da última atualização do usuário.
-                              default: 2025-02-07T13:19:06.000-03:00
                             deletedAt:
                               type: string
-                              nullable: true
                               description: Data de exclusão do usuário (se aplicável).
-                              default: null
+                              x-nullable: true
                   meta:
                     type: object
         400:
-          description: Bad Request.
+          description: Bad Request. Caso aconteça esse erro, não é criado nenhum aluno.
           content:
             application/json:
               schema:
@@ -1903,6 +1900,24 @@ paths:
                   message:
                     type: string
                     default: Student already exists.
+                  students:
+                    type: array
+                    description: Lista de alunos que já existem na base.
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Nome do aluno.
+                        surname:
+                          type: string
+                          description: Sobrenome do aluno.
+                        email:
+                          type: string
+                          description: Email do aluno.
+                        idRef:
+                          type: string
+                          description: ID de referência do aluno
         404:
           description: Not Found.
           content:
@@ -1912,6 +1927,147 @@ paths:
                   message:
                     type: string
                     default: Unauthorized.
+    get:
+      operationId: listStudents
+      tags:
+        - Student
+      summary: Listagem de alunos
+      description:
+        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
+      security:
+        - Authorization:
+            - read
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                search:
+                  type: string
+                  description: Filtrar pelo nome do aluno.
+                  default: null
+                schoolClassId:
+                  type: string
+                  format: uuid
+                  description: Filtrar pelo id da turma.
+                  default: null
+                page:
+                  type: integer
+                  description: Quantidades de páginas.
+                  default: 1
+                perPage:
+                  type: integer
+                  description: Quantidades de alunos por página.
+                  default: 12
+                sort:
+                  type: string
+                  description: Organizar lista por `id`, `name`, `surname`, `fullName`, `idRef`, `createdAt`, `updatedAt`, `schoolClassId`, `schoolClassName` ou `schoolClassIdRef`.
+                  default: name
+                order:
+                  type: string
+                  description: Ordenar por `asc` ou `desc`.
+                  default: asc
+      responses:
+        200:
+          description: OK.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      students:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: ID do estudante.
+                            user:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  description: ID do usuário.
+                                name:
+                                  type: string
+                                  description: Nome do usuário.
+                                surname:
+                                  type: string
+                                  description: Sobrenome do usuário.
+                                fullName:
+                                  type: string
+                                  description: Nome completo do usuário.
+                                email:
+                                  type: string
+                                  format: email
+                                  description: E-mail do usuário.
+                                profilePicture:
+                                  type: string
+                                  nullable: true
+                                  description: URL da foto de perfil do usuário.
+                                idRef:
+                                  type: string
+                                  nullable: true
+                                  description: ID de referência do usuário.
+                                createdAt:
+                                  type: string
+                                  format: date-time
+                                  description: Data de criação do usuário.
+                                updatedAt:
+                                  type: string
+                                  format: date-time
+                                  description: Data da última atualização do usuário.
+                                deletedAt:
+                                  type: string
+                                  format: date-time
+                                  description: Data de exclusão do usuário.
+                                  x-nullable: true
+                            schoolClass:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  description: ID da turma do estudante.
+                                name:
+                                  type: string
+                                  description: Nome da turma do estudante.
+                                idRef:
+                                  type: string
+                                  description: ID de referência da turma.
+                                  x-nullable: true
+                            createdAt:
+                              type: string
+                              format: date-time
+                              description: Data de criação do estudante.
+                            updatedAt:
+                              type: string
+                              format: date-time
+                              description: Data da última atualização do estudante.
+                            deletedAt:
+                              type: string
+                              format: date-time
+                              description: Data de exclusão do estudante.
+                              x-nullable: true
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        description: Número total de estudantes.
+                        default: 1
+                      perPage:
+                        type: integer
+                        description: Número de estudantes por página.
+                        default: 1
+                      currentPage:
+                        type: integer
+                        description: Página atual.
+                        default: 1
   /integrations/students/{studentId}:
     get:
       operationId: showStudent
@@ -1971,21 +2127,19 @@ paths:
                               idRef:
                                 type: string
                                 description: ID de referência do usuário.
+                                x-nullable: true
                               createdAt:
                                 type: string
                                 format: date-time
                                 description: Data de criação do usuário.
-                                default: 2025-02-07T13:19:06.000-03:00
                               updatedAt:
                                 type: string
                                 format: date-time
                                 description: Data da última atualização do usuário.
-                                default: 2025-02-07T13:19:06.000-03:00
                               deletedAt:
                                 type: string
-                                nullable: true
                                 description: Data de exclusão do usuário (se aplicável).
-                                default: null
+                                x-nullable: true
                           schoolClass:
                             type: object
                             properties:
@@ -1997,24 +2151,21 @@ paths:
                                 description: Nome da turma.
                               idRef:
                                 type: string
-                                nullable: true
                                 description: ID de referência da turma.
+                                x-nullable: true
                           createdAt:
                             type: string
                             format: date-time
                             description: Data de criação do estudante.
-                            default: 2025-02-07T13:19:06.000-03:00
                           updatedAt:
                             type: string
                             format: date-time
                             description: Data da última atualização do estudante.
-                            default: 2025-02-07T13:19:06.000-03:00
                           deletedAt:
                             type: string
                             format: date-time
-                            nullable: true
                             description: Data de exclusão do estudante (se aplicável).
-                            default: null
+                            x-nullable: true
                   meta:
                     type: object
         404:
@@ -2042,7 +2193,7 @@ paths:
           description: ID do aluno
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
@@ -2062,7 +2213,7 @@ paths:
                 idRef:
                   type: string
                   description: O id de referência do aluno
-                  nullable: true
+                  x-nullable: true
               required:
                 - schoolClassId
                 - name
@@ -2113,12 +2264,10 @@ paths:
                                 type: string
                                 format: date-time
                                 description: Data de criação do usuário.
-                                default: 2025-02-07T13:19:06.000-03:00
                               updatedAt:
                                 type: string
                                 format: date-time
                                 description: Data da última atualização do usuário.
-                                default: 2025-02-07T13:19:06.000-03:00
                               deletedAt:
                                 type: string
                                 nullable: true
@@ -2141,12 +2290,10 @@ paths:
                             type: string
                             format: date-time
                             description: Data de criação do estudante.
-                            default: 2025-02-07T13:19:06.000-03:00
                           updatedAt:
                             type: string
                             format: date-time
                             description: Data da última atualização do estudante.
-                            default: 2025-02-07T13:19:06.000-03:00
                           deletedAt:
                             type: string
                             format: date-time
@@ -2155,18 +2302,6 @@ paths:
                             default: null
                   meta:
                     type: object
-        400:
-          description: Bad Request. Link inválido ou algum parâmetro do aluno não foi enviado.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseError'
-        403:
-          description: Forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseError'
         404:
           description: Not Found.
           content:
@@ -2231,21 +2366,19 @@ paths:
                               idRef:
                                 type: string
                                 description: ID de referência do usuário.
+                                x-nullable: true
                               createdAt:
                                 type: string
                                 format: date-time
                                 description: Data de criação do usuário.
-                                default: 2025-02-07T13:19:06.000-03:00
                               updatedAt:
                                 type: string
                                 format: date-time
                                 description: Data da última atualização do usuário.
-                                default: 2025-02-07T13:19:06.000-03:00
                               deletedAt:
                                 type: string
-                                nullable: true
                                 description: Data de exclusão do usuário (se aplicável).
-                                default: 2025-02-07T13:19:06.000-03:00
+                                x-nullable: true
                           schoolClass:
                             type: object
                             properties:
@@ -2257,182 +2390,27 @@ paths:
                                 description: Nome da turma.
                               idRef:
                                 type: string
-                                nullable: true
                                 description: ID de referência da turma.
+                                x-nullable: true
                           createdAt:
                             type: string
                             format: date-time
                             description: Data de criação do estudante.
-                            default: 2025-02-07T13:19:06.000-03:00
                           updatedAt:
                             type: string
                             format: date-time
                             description: Data da última atualização do estudante.
-                            default: 2025-02-07T13:19:06.000-03:00
                           deletedAt:
                             type: string
                             format: date-time
-                            nullable: true
                             description: Data de exclusão do estudante (se aplicável).
-                            default: 2025-02-07T13:19:06.000-03:00
+                            x-nullable: true
         404:
           description: Not Found.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseError'
-  /integrations/students:
-    get:
-      operationId: listStudents
-      tags:
-        - Student
-      summary: Listagem de alunos
-      description:
-        <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
-      security:
-        - Authorization:
-            - read
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                search:
-                  type: string
-                  description: Filtrar pelo nome da turma.
-                  default: null
-                schoolClassId:
-                  type: string
-                  format: uuid
-                  description: Filtrar pelo id da turma.
-                  default: null
-                onlyTrashed:
-                  type: boolean
-                  description: Filtrar por alunos deletados.
-                  default: false
-                page:
-                  type: integer
-                  description: Quantidades de páginas.
-                  default: 1
-                perPage:
-                  type: integer
-                  description: Quantidades de turmas por página.
-                  default: 12
-                sort:
-                  type: string
-                  description: Organizar lista por ID, name, surname, fullName, idRef, createdAt, updatedAt, schoolClassId, schoolClassName ou schoolClassIdRef.
-                  default: name
-                order:
-                  type: string
-                  description: Ordernar por asc ou desc.
-                  default: asc
-      responses:
-        200:
-          description: OK.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      students:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              description: ID do estudante.
-                            user:
-                              type: object
-                              properties:
-                                id:
-                                  type: string
-                                  description: ID do usuário.
-                                name:
-                                  type: string
-                                  description: Nome do usuário.
-                                surname:
-                                  type: string
-                                  description: Sobrenome do usuário.
-                                fullName:
-                                  type: string
-                                  description: Nome completo do usuário.
-                                email:
-                                  type: string
-                                  format: email
-                                  description: E-mail do usuário.
-                                profilePicture:
-                                  type: string
-                                  nullable: true
-                                  description: URL da foto de perfil do usuário.
-                                idRef:
-                                  type: string
-                                  nullable: true
-                                  description: ID de referência do usuário.
-                                createdAt:
-                                  type: string
-                                  format: date-time
-                                  description: Data de criação do usuário.
-                                  default: "2025-02-07T13:19:06.000-03:00"
-                                updatedAt:
-                                  type: string
-                                  format: date-time
-                                  description: Data da última atualização do usuário.
-                                  default: "2025-02-07T13:19:06.000-03:00"
-                                deletedAt:
-                                  type: string
-                                  format: date-time
-                                  nullable: true
-                                  description: Data de exclusão do usuário.
-                                  default: null
-                            schoolClass:
-                              type: object
-                              properties:
-                                id:
-                                  type: string
-                                  description: ID da turma do estudante.
-                                name:
-                                  type: string
-                                  description: Nome da turma do estudante.
-                                idRef:
-                                  type: string
-                                  nullable: true
-                                  description: ID de referência da turma.
-                            createdAt:
-                              type: string
-                              format: date-time
-                              description: Data de criação do estudante.
-                              default: "2025-02-07T13:19:06.000-03:00"
-                            updatedAt:
-                              type: string
-                              format: date-time
-                              description: Data da última atualização do estudante.
-                              default: "2025-02-07T13:19:06.000-03:00"
-                            deletedAt:
-                              type: string
-                              format: date-time
-                              nullable: true
-                              description: Data de exclusão do estudante.
-                              default: null
-                  meta:
-                    type: object
-                    properties:
-                      total:
-                        type: integer
-                        description: Número total de estudantes.
-                        default: 1
-                      perPage:
-                        type: integer
-                        description: Número de estudantes por página.
-                        default: 1
-                      currentPage:
-                        type: integer
-                        description: Página atual.
-                        default: 1
   /webhook:
     post:
       operationId: sendWebhook
