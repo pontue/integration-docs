@@ -1088,18 +1088,128 @@ paths:
                                     description: Comentários da correção (no format JSON).
                                     x-nullable: true
                                     format: json
-                      zeroReason:
+                      correction:
                         type: object
-                        description: Zerar redação. Se a redação não for zerada, esse campo será `null`.
                         x-nullable: true
+                        description: Correção da redação (Se a redação foi corrigida).
                         properties:
                           id:
                             type: string
                             format: uuid
-                            description: ID da justificativa para zerar redação.
-                          reason:
+                            description: ID da correção.
+                          corrector:
+                            type: object
+                            description: Corretor da redação.
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                                description: ID do corretor.
+                              name:
+                                type: string
+                                description: Nome do corretor.
+                          finalGrade:
+                            type: number
+                            description: Nota final da redação.
+                          comment:
                             type: string
-                            description: Nome da justificativa para zerar redação.
+                            x-nullable: true
+                            description: Comentário final da redação.
+                          video:
+                            type: object
+                            x-nullable: true
+                            description: Vídeo da correção da redação. Se não tiver vídeo, esse campo será `null`.
+                            properties:
+                              url:
+                                type: string
+                                description: URL do vídeo.
+                              stream:
+                                type: string
+                                description: URL para streaming do vídeo.
+                          grades:
+                            type: array
+                            description: Notas da correção. Se a redação for denunciada ou zerada, esse campo será um `array vazio`.
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                  description: ID da nota.
+                                value:
+                                  type: number
+                                  description: Valor da nota.
+                                criterionParent:
+                                  type: object
+                                  description: Critério pai.
+                                  properties:
+                                    id:
+                                      type: string
+                                      format: uuid
+                                      description: ID do critério pai.
+                                    name:
+                                      type: string
+                                      description: Nome do critério pai.
+                                    order:
+                                      type: integer
+                                      description: Ordem do critério pai.
+                                    criterion:
+                                      type: object
+                                      description: Critério.
+                                      properties:
+                                        id:
+                                          type: string
+                                          format: uuid
+                                          description: ID do critério.
+                                        name:
+                                          type: string
+                                          description: Nome do critério.
+                                        order:
+                                          type: integer
+                                          description: Ordem do critério.
+                                        commentary:
+                                          type: object
+                                          x-nullable: true
+                                          description: Comentário do critério.
+                                          properties:
+                                            id:
+                                              type: string
+                                              format: uuid
+                                              description: ID do comentário.
+                                            description:
+                                              type: string
+                                              description: Descrição do comentário.
+                          report:
+                            type: object
+                            description: Denúncia da redação. Se a redação não for denunciada, esse campo não será enviado.
+                            x-nullable: true
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                                description: ID da denúncia.
+                              name:
+                                type: string
+                                description: Nome da denúncia.
+                              description:
+                                type: string
+                                description: Descrição da denúncia.
+                              url:
+                                type: string
+                                x-nullable: true
+                                description: URL do vídeo da denúncia, caso tenha. Se não tiver, esse campo será `null`.
+                          zeroReason:
+                            type: object
+                            description: Zerar redação. Se a redação não for zerada, esse campo não será enviado.
+                            x-nullable: true
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                                description: ID da justificativa para zerar redação.
+                              reason:
+                                type: string
+                                description: Nome da justificativa para zerar redação.
                   meta:
                     type: object
         401:
@@ -2494,6 +2604,13 @@ paths:
                         name:
                           type: string
                           description: Nome da denúncia.
+                        description:
+                          type: string
+                          description: Descrição da denúncia.
+                        url:
+                          type: string
+                          x-nullable: true
+                          description: URL do vídeo da denúncia, caso tenha. Se não tiver, esse campo será `null`.
                     zeroReason:
                       type: object
                       description: Zerar redação. Se a redação não for zerada, esse campo será `null`.
