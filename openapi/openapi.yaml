@@ -1194,6 +1194,10 @@ paths:
                               description:
                                 type: string
                                 description: Descrição da denúncia.
+                              longDescription:
+                                type: string
+                                x-nullable: true
+                                description: Descrição longa da denúncia.
                               url:
                                 type: string
                                 x-nullable: true
@@ -1446,7 +1450,7 @@ paths:
         - Essay
       summary: Obtém as imagens de uma redação corrigida
       description:
-        Obtém as imagens de uma redação <strong>corrigida e não reportada</strong>.<br>
+        Obtém as imagens de uma redação <strong>corrigida</strong>.<br>
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
         - Authorization:
@@ -1500,7 +1504,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    description: "`This essay is uncorrected.` ou `This essay has been reported.`"
+                    description: "`This essay is uncorrected.`"
         401:
           description: Unauthorized.
           content:
@@ -2607,6 +2611,10 @@ paths:
                         description:
                           type: string
                           description: Descrição da denúncia.
+                        longDescription:
+                          type: string
+                          x-nullable: true
+                          description: Descrição longa da denúncia.
                         url:
                           type: string
                           x-nullable: true
