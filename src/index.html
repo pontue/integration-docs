@@ -13,6 +13,8 @@
     <script>
       Scalar.createApiReference('#app', {
         url: './openapi/openapi.yaml',
+        authentication: { preferredSecurityScheme: 'Authorization' },
+        orderSchemaPropertiesBy: 'preserve',
         documentDownloadType: 'none',
         hideModels: true,
         agent: { disabled: true },

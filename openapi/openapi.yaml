@@ -14,9 +14,17 @@ servers:
 components:
   securitySchemes:
     Authorization:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+      type: oauth2
+      description: "
+        Autenticação via OAuth2 (client credentials) com o `client_id` e o `client_secret` fornecidos pela nossa equipe de TI.
+        <br/>
+        Nesta documentação, informe o `client_id` e o `client_secret` em <strong>Authentication</strong>: o token é obtido automaticamente no endpoint `/oauth/token` e enviado no header `Authorization`.
+        "
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.dev.pontue.com.br/oauth/token
+          scopes:
+            login-sso: Token para o Login SSO (opcional).
   schemas:
     ResponseError:
       properties:
@@ -55,6 +63,9 @@ paths:
         <br/>
         <br/>
         Para o <strong>Login SSO</strong>, redirecionar o usuário para a URL: `https://sso.dev.pontue.com.br` com os seguintes parâmetros na `query string`: `ssoAccessToken` (`access_token` recebido nesse endpoint) e uma das três opções `id` (ID do usuário na nossa plataforma) ou `idRef` (ID de referência do usuário) ou `email` (e-mail do usuário).
+        <br/>
+        <br/>
+        <strong>Nesta documentação</strong>, não é necessário chamar este endpoint para testar os demais: informe o `client_id` e o `client_secret` em <strong>Authentication</strong> e o token é obtido automaticamente.
         "
       requestBody:
         content:
@@ -128,12 +139,10 @@ paths:
         <br/>
         No Header Authorization, utilizar o `token_type` + `access_token` retornado pelo endpoint `/oauth/token`. <br>
         <strong>Exemplo</strong>: `Authorization: Bearer eyJ0eXAiOiJ...`.<br>
-        <strong>Porém, aqui na documentação, adicione apenas o `access_token`, pois o `token_type` é adicionado automaticamente</strong>.
+        <strong>Nesta documentação</strong>, informe o `client_id` e o `client_secret` em <strong>Authentication</strong>: o token é obtido e enviado automaticamente.
         "
       security:
-        - Authorization:
-            - read
-            - write
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -230,8 +239,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           multipart/form-data:
@@ -401,8 +409,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: proposalId
@@ -596,8 +603,7 @@ paths:
         <strong>OBS:</strong> Se enviados `subjectId` e `schoolClasses`, será dada preferência para a disciplina.<br>
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: proposalId
@@ -700,8 +706,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           multipart/form-data:
@@ -833,8 +838,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
@@ -1181,8 +1185,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
@@ -1353,8 +1356,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
@@ -1400,8 +1402,7 @@ paths:
         Obtém as imagens de uma redação <strong>corrigida</strong>.<br>
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
@@ -1483,8 +1484,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -1551,8 +1551,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           multipart/form-data:
@@ -1646,8 +1645,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: schoolClassId
@@ -1706,8 +1704,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: schoolClassId
@@ -1782,8 +1779,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: schoolClassId
@@ -1838,8 +1834,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -2000,8 +1995,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -2142,8 +2136,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: studentId
@@ -2248,8 +2241,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: studentId
@@ -2383,8 +2375,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: studentId
