@@ -838,6 +838,7 @@ paths:
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1185,6 +1186,7 @@ paths:
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1356,6 +1358,7 @@ paths:
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1402,6 +1405,7 @@ paths:
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1647,6 +1651,7 @@ paths:
       parameters:
         - in: path
           name: schoolClassId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1706,6 +1711,7 @@ paths:
       parameters:
         - in: path
           name: schoolClassId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1781,6 +1787,7 @@ paths:
       parameters:
         - in: path
           name: schoolClassId
+          required: true
           schema:
             type: string
             format: uuid
@@ -2140,6 +2147,7 @@ paths:
       parameters:
         - in: path
           name: studentId
+          required: true
           schema:
             type: string
             format: uuid
@@ -2245,6 +2253,7 @@ paths:
       parameters:
         - in: path
           name: studentId
+          required: true
           schema:
             type: string
             format: uuid
@@ -2379,6 +2388,7 @@ paths:
       parameters:
         - in: path
           name: studentId
+          required: true
           schema:
             type: string
             format: uuid

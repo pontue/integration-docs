@@ -9,12 +9,13 @@
   },
   "private": true,
   "scripts": {
-    "start": "redocly preview-docs openapi/openapi.yaml --port 8082 --config .redocly.yaml",
+    "start": "scalar document serve openapi/openapi.yaml --watch --port 8082",
     "build": "node scripts/build.mjs",
     "preview": "npm run build && serve dist --listen 8082",
-    "test": "redocly lint"
+    "test": "scalar document validate openapi/openapi.yaml"
   },
   "devDependencies": {
+    "@scalar/cli": "2.5.2",
     "serve": "14.2.6"
   },
   "engines": {
