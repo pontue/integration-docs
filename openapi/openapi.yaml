@@ -14,9 +14,17 @@ servers:
 components:
   securitySchemes:
     Authorization:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+      type: oauth2
+      description: "
+        Autenticação via OAuth2 (client credentials) com o `client_id` e o `client_secret` fornecidos pela nossa equipe de TI.
+        <br/>
+        Nesta documentação, informe o `client_id` e o `client_secret` em <strong>Authentication</strong>: o token é obtido automaticamente no endpoint `/oauth/token` e enviado no header `Authorization`.
+        "
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.dev.pontue.com.br/oauth/token
+          scopes:
+            login-sso: Token para o Login SSO (opcional).
   schemas:
     ResponseError:
       properties:
@@ -55,7 +63,10 @@ paths:
         <br/>
         <br/>
         Para o <strong>Login SSO</strong>, redirecionar o usuário para a URL: `https://sso.dev.pontue.com.br` com os seguintes parâmetros na `query string`: `ssoAccessToken` (`access_token` recebido nesse endpoint) e uma das três opções `id` (ID do usuário na nossa plataforma) ou `idRef` (ID de referência do usuário) ou `email` (e-mail do usuário).
-      "
+        <br/>
+        <br/>
+        <strong>Nesta documentação</strong>, não é necessário chamar este endpoint para testar os demais: informe o `client_id` e o `client_secret` em <strong>Authentication</strong> e o token é obtido automaticamente.
+        "
       requestBody:
         content:
           multipart/form-data:
@@ -78,7 +89,7 @@ paths:
                     Escopo da solicitação de token. Todos os escopos disponíveis são separados por espaço.
                     <br />
                     Caso for fazer o <strong>Login SSO</strong>, insira `login-sso`, caso contrário, não envie esse campo.
-                  "
+                    "
               required:
                 - grant_type
                 - client_id
@@ -128,12 +139,10 @@ paths:
         <br/>
         No Header Authorization, utilizar o `token_type` + `access_token` retornado pelo endpoint `/oauth/token`. <br>
         <strong>Exemplo</strong>: `Authorization: Bearer eyJ0eXAiOiJ...`.<br>
-        <strong>Porém, aqui na documentação, adicione apenas o `access_token`, pois o `token_type` é adicionado automaticamente</strong>.
-      "
+        <strong>Nesta documentação</strong>, informe o `client_id` e o `client_secret` em <strong>Authentication</strong>: o token é obtido e enviado automaticamente.
+        "
       security:
-        - Authorization:
-            - read
-            - write
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -230,8 +239,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           multipart/form-data:
@@ -249,14 +257,14 @@ paths:
                   type: string
                   description: "
                     Identificador do simulado. Não é exibido diretamente; serve para identificar as propostas que pertencem a um mesmo simulado.
-                  "
+                    "
                 subjectId:
                   type: string
                   format: uuid
                   description: "
                     O ID da disciplina (caso a proposta seja disponibilizada para uma disciplina).<br><br>
                     <strong>Exclusivo com `schoolClasses`</strong>: se `subjectId` for enviado, o campo `schoolClasses` é ignorado.
-                  "
+                    "
                 schoolClasses[]:
                   type: array
                   description: "
@@ -265,7 +273,7 @@ paths:
                     <strong>Exemplo</strong>:<br>
                     `schoolClasses[]: 9b1d...`<br>
                     `schoolClasses[]: 7c2e...`
-                  "
+                    "
                   items:
                     type: string
                     format: uuid
@@ -282,7 +290,7 @@ paths:
                   description: "
                     Indica se o simulado é presencial (`true`) ou online (`false`).<br>
                     Quando `true`, os campos `mockExam[startDate]` e `mockExam[endDate]` são ignorados.
-                  "
+                    "
                   default: false
                 mockExam[startDate]:
                   type: string
@@ -290,7 +298,7 @@ paths:
                   description: "
                     Data de início do simulado online, no formato `YYYY-MM-DD HH:mm:ss`.<br>
                     Considerado apenas quando `mockExam[isFaceToFace]` for `false`.
-                  "
+                    "
                   example: '2026-10-01 08:00:00'
                 mockExam[endDate]:
                   type: string
@@ -298,7 +306,7 @@ paths:
                   description: "
                     Data de término do simulado online, no formato `YYYY-MM-DD HH:mm:ss`.<br>
                     Considerado apenas quando `mockExam[isFaceToFace]` for `false`.
-                  "
+                    "
                   example: '2026-10-15 23:59:59'
                 mockExam[allowCorrectionView]:
                   type: boolean
@@ -316,7 +324,7 @@ paths:
                     <strong>Exemplo</strong>:<br>
                     `file_labels[]: {\"id\":\"1\",\"label\":\"Texto motivador\",\"name\":\"texto.pdf\"}`<br>
                     `file-1: (arquivo binário)`
-                  "
+                    "
                   items:
                     type: string
                     example: '{"id":"1","label":"Texto motivador","name":"texto.pdf"}'
@@ -331,7 +339,7 @@ paths:
                     <strong>Exemplo</strong>:<br>
                     Com `file_labels[0]` contendo `\"id\":\"nomeDoArquivo1\"`, o arquivo deve ser enviado com o seguinte nome do campo: `file-nomeDoArquivo1`.<br>
                     Com `file_labels[1]` contendo `\"id\":\"nomeDoArquivo2\"`, o arquivo deve ser enviado com o seguinte nome do campo: `file-nomeDoArquivo2`.<br>
-                  "
+                    "
                 file-2:
                   type: string
                   format: binary
@@ -343,7 +351,7 @@ paths:
                     <strong>Exemplo</strong>:<br>
                     Com `file_labels[0]` contendo `\"id\":\"nomeDoArquivo1\"`, o arquivo deve ser enviado com o seguinte nome do campo: `file-nomeDoArquivo1`.<br>
                     Com `file_labels[1]` contendo `\"id\":\"nomeDoArquivo2\"`, o arquivo deve ser enviado com o seguinte nome do campo: `file-nomeDoArquivo2`.<br>
-                  "
+                    "
                 links[]:
                   type: array
                   description: "
@@ -354,7 +362,7 @@ paths:
                     `label`: Título do link que será apresentado ao usuário.<br><br>
                     <strong>Exemplo</strong>:<br>
                     `links[]: {\"url\":\"https://exemplo.com/texto\",\"label\":\"Texto de apoio\"}`
-                  "
+                    "
                   items:
                     type: string
                     example: '{"url":"https://exemplo.com/texto","label":"Texto de apoio"}'
@@ -401,8 +409,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: proposalId
@@ -596,8 +603,7 @@ paths:
         <strong>OBS:</strong> Se enviados `subjectId` e `schoolClasses`, será dada preferência para a disciplina.<br>
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: proposalId
@@ -618,14 +624,14 @@ paths:
                   description: "
                     ID da disciplina para a qual a proposta será liberada.<br><br>
                     <strong>Exclusivo com `schoolClasses`</strong>: se `subjectId` for enviado, o campo `schoolClasses` é ignorado e a proposta deixa de estar vinculada às turmas anteriores.
-                  "
+                    "
                 schoolClasses:
                   type: array
                   description: "
                     Turmas para as quais a proposta será liberada.<br><br>
                     <strong>Substitui a lista atual</strong>: as turmas já vinculadas que não forem enviadas serão desvinculadas da proposta.<br>
                     Só é considerado quando `subjectId` não for enviado.
-                  "
+                    "
                   items:
                     type: object
                     properties:
@@ -643,7 +649,7 @@ paths:
                     Campo não enviado: mantém a data atual.<br>
                     `null` ou vazio: remove a data de liberação.<br>
                     Preenchido: define a nova data de liberação.
-                  "
+                    "
                   example: '23/09/2022 08:00:00'
                 removeAt:
                   type:
@@ -656,20 +662,20 @@ paths:
                     Campo não enviado: mantém a data atual.<br>
                     `null` ou vazio: remove a data de remoção.<br>
                     Preenchido: define a nova data de remoção.
-                  "
+                    "
                   example: '30/09/2022 23:59:59'
                 allowSecondView:
                   type: boolean
                   description: "
                     Indica se é permitido solicitar segunda vista (revisão) da correção.<br>
                     Campo não enviado: mantém o valor atual.
-                  "
+                    "
                 allowCorrectionView:
                   type: boolean
                   description: "
                     Indica se o aluno pode visualizar a correção da redação do simulado.<br>
                     Campo não enviado: mantém o valor atual.
-                  "
+                    "
       responses:
         204:
           description: No Content.
@@ -700,8 +706,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           multipart/form-data:
@@ -739,7 +744,7 @@ paths:
                       <strong>acceptedTerms</strong>: (boolean) Indica se o aluno aceitou os termos de uso do envio da reescrita da redação.<br>
                       <strong>gradeReason</strong>: (string) Motivo da nota para segunda vista da redação.<br>
                       <strong>correctorReason</strong>: (string) Motivo para o corretor para segunda vista da redação.<br>
-                  "
+                    "
                   properties:
                     type:
                       type: string
@@ -833,11 +838,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1180,11 +1185,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1240,7 +1245,7 @@ paths:
                       description: '
                         Nome do arquivo e tipo do arquivo, com a ordem que deseja que a imagem fique na redação.<br>
                         Exemplo: "imagem.jpg": 1
-                      '
+                        '
               required:
                 - proposalId
       responses:
@@ -1351,11 +1356,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1397,11 +1402,11 @@ paths:
         Obtém as imagens de uma redação <strong>corrigida</strong>.<br>
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: essayId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1479,8 +1484,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -1547,8 +1551,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           multipart/form-data:
@@ -1642,11 +1645,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: schoolClassId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1701,11 +1704,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: schoolClassId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1776,11 +1779,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: schoolClassId
+          required: true
           schema:
             type: string
             format: uuid
@@ -1831,8 +1834,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -1993,8 +1995,7 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       requestBody:
         content:
           application/json:
@@ -2135,11 +2136,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: studentId
+          required: true
           schema:
             type: string
             format: uuid
@@ -2240,11 +2241,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: studentId
+          required: true
           schema:
             type: string
             format: uuid
@@ -2374,11 +2375,11 @@ paths:
       description:
         <strong>OBS:</strong> Utilize o `access_token` retornado pelo endpoint `/oauth/token` para autenticação.
       security:
-        - Authorization:
-            - read
+        - Authorization: []
       parameters:
         - in: path
           name: studentId
+          required: true
           schema:
             type: string
             format: uuid
